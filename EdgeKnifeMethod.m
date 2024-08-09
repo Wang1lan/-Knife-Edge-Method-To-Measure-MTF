@@ -63,7 +63,7 @@ figure, plot(1:51, LSF),title('LSF');
 MTF = abs(fftshift(fft2(LSF)));
 MTF = MTF / max(MTF(:));
 MTF = MTF(26:end, 1)';
-figure, plot(linspace(0,1,4), MTF(1,1:4)),title('MTF');% 已截止频率进行归一化
+figure, plot(linspace(0,1,4), MTF(1,1:4)),title('MTF');% 以截止频率进行归一化
 
 
 
