@@ -34,36 +34,40 @@ for i = 1: rows
 end
 clear i j
 
-% 以边缘点为中心，将每行前25个和后25个灰度值绘制ESF曲线
+% 以边缘点为中心，将每行前30个和后30个灰度值绘制ESF曲线
+N = 30;
 figure,
 hold on
-for i = 50:149 % 取中间100行，避免前后25个灰度值超出索引范围
-    curveLine = interp_image(i, edgePoints_col(i)-25 : edgePoints_col(i)+25);
-    plot(1:51, curveLine);
+for i = 50:149 % 取中间100行，避免前后30个灰度值超出索引范围
+    curveLine = interp_image(i, edgePoints_col(i)-N : edgePoints_col(i)+N);
+    plot(1:2*N+1, curveLine);
 end
 hold off
 clear i
 
 % 将曲线取平均
-ESF_matrix = zeros(100, 51);
+ESF_matrix = zeros(100, 2*N+1);
 for i = 1:100
-    ESF_matrix(i, :) = interp_image(i+49, edgePoints_col(i+49)-25 : edgePoints_col(i+49)+25);
+    ESF_matrix(i, :) = interp_image(i+2*N-1, edgePoints_col(i+2*N-1)-N : edgePoints_col(i+2*N-1)+N);
 end
 clear i
 ESF_mean = mean(ESF_matrix,1);
-figure,plot(1:51, ESF_mean),title('ESF');
+figure,plot(1:2*N+1, ESF_mean),title('ESF');
 
 % 对ESF_mean求导
 LSF = diff(double(ESF_mean));
 LSF = [0, LSF];
-LSF = smooth(1:51, LSF, 0.1,'loess'); %平滑处理
-figure, plot(1:51, LSF),title('LSF');
+% LSF = smooth(1:2*N+1, LSF, 0.1,'loess'); %平滑处理
+figure, plot(1:2*N+1, LSF),title('LSF');
 
 % 对LSF做傅里叶变换
 MTF = abs(fftshift(fft2(LSF)));
 MTF = MTF / max(MTF(:));
-MTF = MTF(26:end, 1)';
-figure, plot(linspace(0,1,4), MTF(1,1:4)),title('MTF');% 以截止频率进行归一化
+MTF = MTF(1, N+1:end);
+MTF = MTF(1,1:5); % 查看MTF数组，发现（1，5）为极小值，此处应是截止频率
+freq = linspace(0,1, 5);
+figure, plot(freq, MTF),title('MTF');% 以截止频率进行归一化
+
 
 
 
